@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.vehicle.BaseVehicleMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.vehicle.BaseVehicle">
+        <id property="baseID" column="BASE_ID"/>
+        <result property="baseContent" column="BASE_CONTENT"/>
+        <result property="baseZt" column="BASE_ZT"/>
+        <result property="parentBaseID" column="PARENT_BASE_ID"/>
+        <result property="baseImageUrl" column="BASE_IMAGEURL"/>
+        <result property="baseFirstLetter" column="BASE_FIRSTLETTER"/>
+        <result property="baseOrder" column="BASE_ORDER"/>
+    </resultMap>
+
+    <select id="findByName" resultMap="map">
+        select * from b_basevehicle
+        <where>
+            <if test="name!=null and name!=''"> and base_Content=#{name}</if>
+            and base_zt='1'
+        </where>
+    </select>
+
+
+    <select id="findByStringID"  resultMap="map">
+        select * from b_basevehicle
+        <where>
+            <if test="id!=null and id!=''"> and base_id=#{id}</if>
+            and base_zt='1'
+        </where>
+    </select>
+
+    <select id="findByParentStringID"  resultMap="map">
+        select * from b_basevehicle
+        <where>
+            <if test="id!=null and id!=''"> and parent_base_id=#{id}</if>
+            <if test="id ==null"> and parent_base_id is null</if>
+            and base_zt='1'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="map">
+        select * from b_basevehicle where base_zt='1'
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select * from b_basevehicle
+        <where>
+            <if test="pinPaiID!=null"> and  base_id = #{pinPaiID}  or parent_base_id in (select base_id from b_basevehicle where  base_id=#{pinPaiID} or parent_base_id=#{pinPaiID})  </if>
+            and base_zt='1'
+        </where>
+    </select>
+
+    <select id="check" resultType="integer">
+        select count(1) from b_basevehicle
+        <where>
+            <if test="baseContent!=null and baseContent!=''"> and base_Content=#{name}</if>
+            and base_zt='1'
+        </where>
+    </select>
+
+    <select id="checkExist" resultType="integer">
+        select count(1) from b_basevehicle
+        <where>
+            <if test="id!=null and id!=''"> and base_Content=#{name} and base_ID!=#{id}</if>
+            <if test="id==null || id==''">  and base_Content=#{name}</if>
+            and base_zt='1'
+        </where>
+    </select>
+    <insert id="add"  parameterType="cn.fcars.infomgr.entity.vehicle.BaseVehicle">
+        insert into b_basevehicle(base_id,base_content,parent_base_id,base_zt,base_imageurl,base_firstletter,base_order)
+        values(#{baseID},#{baseContent},#{parentBaseID,jdbcType=VARCHAR},#{baseZt},#{baseImageUrl,jdbcType=VARCHAR},#{baseFirstLetter,jdbcType=VARCHAR},#{baseOrder,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.vehicle.BaseVehicle">
+        update b_basevehicle set base_content=#{baseContent}, base_imageurl=#{baseImageUrl,jdbcType=VARCHAR},base_firstletter=#{baseFirstLetter,jdbcType=VARCHAR},base_order=#{baseOrder,jdbcType=VARCHAR} where base_id=#{baseID}
+    </update>
+
+    <update id="deleteByStringID" parameterType="cn.fcars.infomgr.entity.vehicle.BaseVehicle">
+        UPDATE b_basevehicle t set t.base_ZT='0' where t.base_id=#{id}
+    </update>
+
+    <select id="getPinPai" resultMap="map">
+        select * from b_basevehicle u where u.base_id in (
+        select v_pinpaiid from (
+        select * from v_tuangou t inner join v_product m on t.p_id =m.p_id inner join v_vehiclemgr j on m.v_id =j.v_id
+        <where>
+            m.p_zt='1' and j.v_zt='1' and m.p_yxq>sysdate
+        </where>
+        ) group by v_pinpaiid
+        ) order by u.base_firstletter,u.base_order
+    </select>
+
+    <select id="getProductPinPai" resultMap="map">
+        select * from b_basevehicle u where u.base_id in (
+        select v_pinpaiid from (
+        select * from  v_product m inner join v_vehiclemgr j on m.v_id =j.v_id
+        <where>
+            m.p_zt='1' and j.v_zt='1' and m.p_yxq>sysdate
+        </where>
+        ) group by v_pinpaiid
+        ) order by u.base_firstletter,u.base_order
+    </select>
+
+    <select id="getCheXing" resultMap="map">
+        select * from b_basevehicle u where u.base_id in (
+        select v_chexingid from (
+        select * from v_tuangou t inner join v_product m on t.p_id =m.p_id inner join v_vehiclemgr j on m.v_id =j.v_id
+        <where>
+            j.v_pinpaiid=#{id} and m.p_zt='1' and j.v_zt='1' and m.p_yxq>sysdate
+        </where>
+        ) group by v_chexingid
+        ) order by u.base_order
+    </select>
+
+    <select id="getProductCheXing" resultMap="map">
+       select * from b_basevehicle u where u.base_id in (
+        select v_chexingid from (
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            j.v_pinpaiid=#{id} and t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+        ) group by v_chexingid
+        ) order by u.base_order
+    </select>
+
+    <select id="getCheKuan" resultMap="map">
+        select * from b_basevehicle u where u.base_id in (
+        select v_chekuanid from (
+        select * from v_tuangou t inner join v_product m on t.p_id =m.p_id inner join v_vehiclemgr j on m.v_id =j.v_id
+        <where>
+            j.v_chexingid=#{id} and m.p_zt='1' and j.v_zt='1' and m.p_yxq>sysdate
+        </where>
+        ) group by v_chekuanid
+        ) order by u.base_order
+    </select>
+
+    <select id="getProductCheKuan" resultMap="map">
+        select * from b_basevehicle u where u.base_id in (
+        select v_chekuanid from (
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            j.v_chexingid=#{id} and t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+        ) group by v_chekuanid
+        ) order by u.base_order
+    </select>
+</mapper>

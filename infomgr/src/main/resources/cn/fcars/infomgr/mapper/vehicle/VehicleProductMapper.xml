@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.vehicle.VehicleProductMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.vehicle.VehicleProduct">
+        <id property="PID" column="P_ID"/>
+        <result property="pCount" column="P_COUNT"/>
+        <result property="pKTCount" column="P_KTCOUNT"/>
+        <result property="sellPrice" column="P_SELL_PRICE"/>
+        <result property="advancePrice" column="P_ADVANCE_PRICE"/>
+        <result property="allowArea" column="P_ALLOW_AREA"/>
+        <result property="zt" column="P_ZT"/>
+        <result property="fbDate" column="P_FBDATE"/>
+        <result property="yxq" column="P_YXQ"/>
+        <association property="info" resultMap="VehicleInfo"></association>
+    </resultMap>
+    <resultMap id="VehicleInfo" type="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        <id property="vehicleID" column="V_ID"/>
+        <result property="pinPaiID" column="V_PINPAIID"/>
+        <result property="pinPai" column="V_PINPAI"/>
+        <result property="cheXingID" column="V_CheXingID"/>
+        <result property="cheXing" column="V_CHEXING"/>
+        <result property="cheKuanID" column="V_CheKuanID"/>
+        <result property="cheKuan" column="V_CHEKUAN"/>
+        <result property="color" column="V_COLOR"/>
+        <result property="colorCode" column="V_COLORCODE"/>
+        <result property="zhidaojia" column="V_ZDJ"/>
+        <result property="zt" column="V_ZT"/>
+        <result property="photoUrl" column="V_PHOTOURL"/>
+        <result property="thumbUrl" column="V_THUMBURL"/>
+    </resultMap>
+
+    <select id="findByStringID"  resultMap="map">
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            <if test="id!=null and id!=''"> and p_id=#{id}</if>
+            and  t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+    </select>
+
+
+    <select id="findAll" resultMap="map">
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id  where t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            <if test="pinPaiID!=null  and pinPaiID!=''"> and  j.v_pinpaiid=#{pinPaiID}</if>
+            <if test="cheXingID!=null and cheXingID!=''"> and  j.v_cheXingID=#{cheXingID}</if>
+            <if test="cheKuanID!=null and cheKuanID!=''"> and  j.v_cheKuanID=#{cheKuanID}</if>
+            and t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+    </select>
+
+    <select id="checkExist" resultType="integer">
+        select count(1) from v_product
+        <where>
+            <if test="id!=null and id!=''"> and base_Content=#{name} and base_ID!=#{id}</if>
+            <if test="id==null || id==''">  and base_Content=#{name}</if>
+            and base_zt='1' and t.p_yxq>sysdate
+        </where>
+    </select>
+    <insert id="add"  parameterType="cn.fcars.infomgr.entity.vehicle.VehicleProduct">
+        insert into v_product(p_id,v_id,p_count,p_ktcount,p_sell_price,p_advance_price,p_allow_area,p_zt,p_fbdate,p_yxq)
+        values(#{PID,jdbcType=VARCHAR},#{info.vehicleID,jdbcType=VARCHAR},#{pCount,jdbcType=INTEGER},#{pKTCount,jdbcType=INTEGER},#{sellPrice,jdbcType=INTEGER},#{advancePrice,jdbcType=INTEGER},#{allowArea,jdbcType=VARCHAR},#{zt,jdbcType=VARCHAR},#{fbDate,jdbcType=DATE},#{yxq,jdbcType=DATE})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.vehicle.VehicleProduct">
+        update v_product set p_count=#{pCount},p_ktcount=#{pKTCount} ,  p_sell_price=#{sellPrice}, p_advance_price=#{advancePrice},p_allow_area=#{allowArea},p_yxq=#{yxq,jdbcType=DATE} where p_id=#{PID}
+    </update>
+
+    <update id="deleteByStringID" parameterType="cn.fcars.infomgr.entity.vehicle.VehicleProduct">
+        UPDATE v_product t set t.p_zt='0' where t.p_id=#{id}
+    </update>
+    <select id="getPinPai" resultMap="map">
+       select v_pinpaiid,v_pinpai from (
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            and t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+        ) group by v_pinpaiid,v_pinpai
+    </select>
+
+    <select id="getCheXing" resultMap="map">
+        select v_chexingid,v_chexing from (
+        select * from v_product t inner join v_vehiclemgr j on t.v_id =j.v_id
+        <where>
+            <if test="pinPaiID!=null  and pinPaiID!=''"> and  j.v_pinpaiid=#{pinPaiID}</if>
+            and t.p_zt='1' and j.v_zt='1' and t.p_yxq>sysdate
+        </where>
+        ) group by v_chexingid,v_chexing
+    </select>
+
+
+</mapper>

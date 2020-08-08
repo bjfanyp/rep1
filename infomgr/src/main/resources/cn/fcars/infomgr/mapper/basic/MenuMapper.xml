@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.MenuMapper">
+
+    <resultMap id="menuMap" type="cn.fcars.infomgr.entity.basic.Menu">
+        <id property="menuID" column="menu_id"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="menuUrl" column="menu_url"/>
+        <result property="menuSxh" column="menu_sxh"/>
+        <result property="menuIcon" column="menu_icon"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="parentMenu" resultMap="parentMap">
+        </association>
+        <collection property="permList" resultMap="permMap"></collection>
+    </resultMap>
+    <resultMap id="permMap" type="cn.fcars.infomgr.entity.basic.Perm">
+        <id property="permID" column="perm_id"/>
+        <result property="permName" column="perm_name"/>
+        <result property="permToken" column="perm_token"/>
+        <result property="permSxh" column="perm_sxh"/>
+    </resultMap>
+
+    <resultMap id="parentMap" type="cn.fcars.infomgr.entity.basic.Menu">
+        <id property="menuID" column="parentID"/>
+        <result property="menuName" column="parentName"/>
+    </resultMap>
+    <select id="findByName" resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id
+        <where>
+            <if test="name!=null and name!=''"> and t.menu_name=#{name}</if>
+            and t.is_delete='0'
+        </where>
+        order by t.menu_sxh
+    </select>
+
+
+    <select id="findByID"  resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id
+        <where>
+            <if test="id!=null and id!=''"> and t.menu_id=#{id}</if>
+            and t.is_delete='0'
+        </where>
+        order by t.menu_sxh
+    </select>
+
+    <select id="findAll" resultMap="menuMap">
+           select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName,p.perm_id,p.perm_name,p.perm_token,p.perm_sxh from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id  LEFT join b_perm p on t.menu_id=p.menu_id
+           where t.is_delete='0'
+           order by t.menu_sxh,p.perm_sxh
+    </select>
+
+    <select id="findByQuery" resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id
+        <where>
+           <if test="menuName!=null and menuName!=''"> and t.menu_name like concat(concat('%',#{menuName}),'%')</if>
+            <if test="menuParentID!=null and menuParentID!=''"> and t.menu_parentid =#{menuParentID} </if>
+            and t.is_delete='0'
+        </where>
+        order by t.menu_sxh
+    </select>
+
+    <select id="findParent" resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id
+        <where>
+            and  t.menu_parentid is null
+            and t.is_delete='0'
+        </where>
+        order by t.menu_sxh
+    </select>
+
+    <select id="findByParentID" resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName,p.perm_id,p.perm_name,p.perm_token,p.perm_sxh from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id  LEFT join b_perm p on t.menu_id=p.menu_id
+        <where>
+            <if test="id!=null ||id!=''"></if> and  t.menu_parentid =#{id}
+            and t.is_delete='0'
+        </where>
+        order by t.menu_sxh,p.perm_sxh
+    </select>
+
+    <select id="check" resultMap="menuMap">
+        select t.menu_id,t.menu_name,t.menu_url,t.menu_sxh,t.menu_icon ,t.is_delete,t.create_time,t.update_time,j.menu_id as parentID,j.menu_name as parentName,p.perm_id,p.perm_name,p.perm_token,p.perm_sxh from b_menu t LEFT join b_menu j on t.menu_parentid=j.menu_id  LEFT join b_perm p on t.menu_id=p.menu_id
+        <where>
+            <if test="name!=null and name!=''">and t.menu_name=#{name}</if>
+            and t.is_delete='0'
+        </where>
+    </select>
+
+    <insert id="add"  useGeneratedKeys="true">
+         <selectKey keyProperty="menuID" order="BEFORE" resultType="integer">
+             select seqmenuid.nextval as menuID from dual
+         </selectKey>
+        insert into b_menu(menu_id,menu_name,menu_parentid,menu_sxh,menu_icon ,menu_url,is_delete,create_time, update_time)
+        values(#{menuID},#{menuName},#{parentMenu.menuID,jdbcType=INTEGER},#{menuSxh},#{menuIcon,jdbcType=VARCHAR},#{menuUrl,jdbcType=VARCHAR},#{isDelete},#{createTime},#{updateTime})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.basic.Menu">
+        update b_menu set menu_name=#{menuName},menu_parentid=#{parentMenu.menuID ,jdbcType=INTEGER},menu_sxh=#{menuSxh},menu_icon=#{menuIcon,jdbcType=VARCHAR},menu_url=#{menuUrl,jdbcType=VARCHAR},is_delete=#{isDelete},update_time=#{updateTime} where menu_id=#{menuID}
+    </update>
+
+    <delete id="deleteByID">
+        delete from b_menu where menu_id=#{id}
+    </delete>
+
+</mapper>

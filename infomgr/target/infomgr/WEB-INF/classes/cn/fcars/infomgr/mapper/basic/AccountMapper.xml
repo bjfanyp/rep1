@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.AccountMapper">
+
+    <select id="findByName" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select * from b_account
+        <where>
+            <if test="name!=null and name!=''"> and account_name=#{name}</if>
+            and is_delete='0'
+        </where>
+        order by account_id
+    </select>
+
+    <select id="findByQuery" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select * from b_account
+        <where>
+            <if test="accountName!=null and accountName!=''"> and account_name like concat(concat('%',#{accountName}),'%')</if>
+            <if test="accountType!=null and accountType!=''"> and account_type=#{accountType}</if>
+            and is_delete='0'
+        </where>
+        order by account_id
+    </select>
+
+    <select id="findByPara" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select *  from b_account
+        <where>
+            <if test="name!=null and name!=''"> and account_name=#{name}</if>
+            <if test="type!=null and type!=''"> and account_type=#{type}</if>
+            and is_delete='0'
+        </where>
+        order by account_id
+    </select>
+
+    <select id="findAccount" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select *  from b_account
+        <where>
+            <if test="name!=null and name!=''">     and account_name=#{name}</if>
+            <if test="bank!=null and bank!=''">     and account_bank=#{bank}</if>
+            <if test="number!=null and number!=''"> and account_number=#{number}</if>
+            <if test="type!=null and type!=''">     and account_type=#{type}</if>
+            and is_delete='0'
+        </where>
+    </select>
+
+
+    <select id="findByID" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select * from b_account
+        <where>
+            <if test="id!=null and id!=''"> and account_id=#{id}</if>
+            and is_delete='0'
+        </where>
+    </select>
+    <select id="findAll" resultType="cn.fcars.infomgr.entity.basic.Account">
+        select * from b_account where is_delete='0' order by account_id
+    </select>
+
+    <update id="update">
+        update b_account set account_name=#{accountName},is_delete=#{isDelete}, account_type=#{accountType},account_bank=#{accountBank},account_number=#{accountNumber} where account_id=#{accountID}
+    </update>
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="accountID" order="BEFORE" resultType="integer">
+            select seqaccountid.nextval as accountID from dual
+        </selectKey>
+        insert  into b_account(account_id,account_name,account_type,account_bank,account_number,is_delete) VALUES (#{accountID},#{accountName},#{accountType},#{accountBank},#{accountNumber},#{isDelete})
+    </insert>
+    <delete id="deleteByID">
+        delete from b_account where account_id=#{id}
+    </delete>
+
+</mapper>

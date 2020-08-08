@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.autofinance.OrderPicMapper">
+    <resultMap id="orderPicMap" type="cn.fcars.infomgr.entity.autofinance.OrderPic" >
+        <id property="id" column="id"/>
+        <result property="orderZt" column="order_zt"/>
+        <association property="order" resultMap="orderMap"></association>
+        <association property="pic" resultMap="picMap"></association>
+    </resultMap>
+    <resultMap id="orderMap" type="cn.fcars.infomgr.entity.autofinance.Order" >
+        <id property="orderID" column="order_id"/>
+        <result property="rbID" column="rb_id"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+    <resultMap id="picMap" type="cn.fcars.infomgr.entity.basic.Pic" >
+        <id property="picID" column="pic_id"/>
+        <result property="picName" column="pic_name"/>
+        <result property="picType" column="pic_type"/>
+        <result property="picUrl" column="pic_url"/>
+        <result property="picThumbUrl" column="pic_thumbUrl"/>
+    </resultMap>
+
+    <select id="findByID" resultMap="orderPicMap">
+        select i.id,i.order_id,i.order_zt,i.pic_id,i.pic_type,
+        j.order_id as orderid,j.rb_id,j.is_delete,
+        t.pic_id as picid,t.pic_name,t.pic_type,t.pic_url,t.pic_thumburl
+        from F_Order_Pic i inner join f_Order j on i.order_id=j.order_id left join b_pic t on i.pic_id=t.pic_id
+        <where>
+            <if test="id!=null and id!=''"> and i.id=#{id}</if>
+            and j.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByQuery" resultMap="orderPicMap">
+        select i.id,i.order_id,i.order_zt,i.pic_id,i.pic_type,
+        j.order_id as orderid,j.rb_id,j.is_delete,
+        t.pic_id as picid,t.pic_name,t.pic_type,t.pic_url,t.pic_thumburl
+        from F_Order_Pic i inner join f_Order j on i.order_id=j.order_id left join b_pic t on i.pic_id=t.pic_id
+        <where>
+            <if test="orderID!=null and orderID!=''"> and i.order_id=#{orderID}</if>
+            <if test="orderZt!=null and orderZt!=''">and i.order_zt=#{orderZt}</if>
+            <if test="picType!=null and picType!=''">and i.pic_type=#{picType}</if>
+            and j.is_delete='0'
+        </where>
+    </select>
+
+
+    <insert id="add" parameterType="cn.fcars.infomgr.entity.autofinance.OrderPic" useGeneratedKeys="true">
+    <selectKey keyProperty="id" order="BEFORE" resultType="integer">
+        select seqorderpicid.nextval from dual
+    </selectKey>
+        insert into F_Order_Pic(id,order_id,order_zt,pic_id,pic_type)
+        values(#{id},#{order.orderID},#{orderZt},#{pic.picID},#{pic.picType})
+    </insert>
+    <update id="update" parameterType="cn.fcars.infomgr.entity.autofinance.OrderPic">
+        UPDATE F_ORDER_PIC t set t.order_id=#{order.orderID},t.order_zt=#{orderZt}, t.pic_id=#{pic.picID},t.pic_type=#{pic.picType} where t.id=#{id}
+    </update>
+    <delete id="delete">
+        delete from F_ORDER_PIC where id=#{id}
+    </delete>
+    <delete id="deleteByOrderID">
+        delete from F_ORDER_PIC where order_id=#{orderID}
+    </delete>
+</mapper>

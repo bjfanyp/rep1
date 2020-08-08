@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.DepMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.basic.Dep">
+        <id property="depID" column="dep_ID"/>
+        <result property="depName" column="dep_name"/>
+        <result property="depType" column="dep_type"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="depQdfwf" column="dep_qdfwf"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="account" javaType="cn.fcars.infomgr.entity.basic.Account">
+            <id property="accountID" column="account_iD"/>
+            <result property="accountName" column="account_name"/>
+            <result property="accountType" column="account_type"/>
+            <result property="accountBank" column="account_bank"/>
+            <result property="accountNumber" column="account_number"/>
+        </association>
+    </resultMap>
+
+    <select id="findByName" resultMap="map">
+        select * from b_dep
+        <where>
+            <if test="name!=null and name!=''"> and dep_name=#{name}</if>
+            and dep_id!=1000
+            and is_delete='0'
+        </where>
+    </select>
+
+
+    <select id="findByID"  resultMap="map">
+        select m.dep_id,m.dep_name,m.dep_type,m.is_delete,m.create_time,m.update_time,m.dep_qdfwf,m.account_id,
+        n.account_id as accid,n.account_name,n.account_type,n.account_bank,n.account_number
+        from b_dep m left join  b_account n on m.account_id=n.account_id
+        <where>
+            <if test="id!=null and id!=''"> and m.dep_id=#{id}</if>
+            and m.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="map">
+           select m.dep_id,m.dep_name,m.dep_type,m.is_delete,m.create_time,m.update_time,m.dep_qdfwf,m.account_id,
+        n.account_id as accid,n.account_name,n.account_type,n.account_bank,n.account_number
+        from b_dep m left join  b_account n on m.account_id=n.account_id
+        where m.dep_id!=1000 and m.is_delete='0'
+        order by m.dep_id
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select m.dep_id,m.dep_name,m.dep_type,m.is_delete,m.create_time,m.update_time,m.dep_qdfwf,m.account_id,
+        n.account_id as accid,n.account_name,n.account_type,n.account_bank,n.account_number
+        from b_dep m left join  b_account n on m.account_id=n.account_id
+        <where>
+           <if test="depName!=null and depName!=''"> and m.dep_name like concat(concat('%',#{depName}),'%')</if>
+           <if test="depType!=null and depType!=''"> and m.dep_type=#{depType}</if>
+            and m.dep_id!=1000
+            and m.is_delete='0'
+        </where>
+        order by m.dep_id
+    </select>
+
+    <select id="check" resultType="integer">
+        select count(1) from b_dep m
+        <where>
+            <if test="name!=null and name!=''"> and dep_name=#{name}</if>
+            and m.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByPara" resultMap="map">
+        select *  from b_dep
+        <where>
+            <if test="userType!=null and userType!=''"> and dep_type=#{userType}</if>
+            <if test="isDelete!=null and isDelete!=''"> and is_delete=#{isDelete}</if>
+            and dep_id!=1000
+            and is_delete='0'
+        </where>
+        order by m.dep_id
+    </select>
+
+
+    <insert id="add"  parameterType="cn.fcars.infomgr.entity.basic.Dep" useGeneratedKeys="true">
+        <selectKey keyProperty="depID" order="BEFORE" resultType="java.lang.Integer">
+            select seqdepid.NEXTVAL as userID from DUAL
+        </selectKey>
+        insert into b_dep(dep_id,dep_name,dep_type,is_delete,create_time, update_time,account_id,dep_qdfwf)
+        values(#{depID},#{depName},#{depType},#{isDelete},#{createTime}, #{updateTime},#{account.accountID,jdbcType=INTEGER},#{depQdfwf,jdbcType=DOUBLE})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.basic.Dep">
+        update b_dep set dep_name=#{depName},dep_type=#{depType},is_delete=#{isDelete},create_time=#{createTime}, update_time=#{updateTime},account_id=#{account.accountID ,jdbcType=INTEGER},dep_qdfwf=#{depQdfwf,jdbcType=DOUBLE} where dep_id=#{depID}
+    </update>
+
+</mapper>

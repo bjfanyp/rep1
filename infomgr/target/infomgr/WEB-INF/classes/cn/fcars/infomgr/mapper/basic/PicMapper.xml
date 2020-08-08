@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.PicMapper">
+
+    <select id="findByID" resultType="cn.fcars.infomgr.entity.basic.Pic">
+        select t.pic_id,t.pic_name,t.pic_type,t.pic_url,t.pic_thumburl from b_pic t
+        <where>
+            <if test="id!=null and id!=''"> and t.pic_id=#{id}</if>
+        </where>
+    </select>
+
+    <select id="findByQuery" resultType="cn.fcars.infomgr.entity.basic.Pic">
+        select t.pic_id,t.pic_name,t.pic_type,t.pic_url,t.pic_thumburl from b_pic t
+        <where>
+            <if test="picType!=null and picType!=''"> and t.pic_type=#{picType}</if>
+        </where>
+    </select>
+
+    <update id="update">
+        update b_pic set pic_name=#{picName},pic_type=#{picType},pic_url=#{picUrl,jdbcType=VARCHAR},pic_thumburl=#{picThumbUrl,jdbcType=VARCHAR} where pic_id=#{picID}
+    </update>
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="picID" order="BEFORE" resultType="integer">
+            select seqpicid.nextval from dual
+        </selectKey>
+        insert  into b_pic(pic_id,pic_name,pic_type,pic_url,pic_thumburl) VALUES (#{picID},#{picName},#{picType},#{picUrl,jdbcType=VARCHAR},#{picThumbUrl,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteByID">
+        delete from b_pic where pic_id=#{id}
+    </delete>
+
+</mapper>

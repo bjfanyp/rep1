@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.DistrictMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.basic.District">
+        <id property="districtCode" column="district_code"/>
+        <result property="districtName" column="district_name"/>
+        <result property="parentCode" column="parent_code"/>
+    </resultMap>
+
+    <select id="findByStringID"  resultMap="map">
+        select * from b_district t
+        <where>
+            <if test="code!=null and code!=''"> and district_code=#{code}</if>
+        </where>
+        order by district_code
+    </select>
+
+    <select id="findByParentStringID"  resultMap="map">
+        select * from b_district t
+        <where>
+            <if test="parentCode!=null and parentCode!=''"> and parent_code=#{parentCode}</if>
+            <if test="parentCode==null"> and parent_code is null</if>
+        </where>
+        order by district_code
+    </select>
+
+    <select id="findAll" resultMap="map">
+         select t.district_code,t.district_name,t.parent_code from b_district t order by district_code
+    </select>
+    <select id="findQuery" resultMap="map">
+         select t.district_code,t.district_name,t.parent_code from b_district t where t.district_code='110100' order by district_code
+    </select>
+</mapper>

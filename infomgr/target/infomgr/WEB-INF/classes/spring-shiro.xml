@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+              http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+              http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!-- 1.配置securityManager安全管理器-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="authenticator" ref="authenticator"/>
+        <!--<property name="realm" ref="userRealm"></property>-->
+        <property name="realms">
+            <list>
+                <ref bean="userRealm"/>
+            </list>
+        </property>
+        <property name="rememberMeManager" ref="rememberMeManager"></property>
+        <property name="cacheManager" ref="shiroEhcacheManager" />
+    </bean>
+
+    <bean id="rememberMeManager"  class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <property name="cookie" ref="rememberMeCookie"/>
+    </bean>
+    <bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="rememberMe"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="3600"/><!-- 秒为单位 -->
+    </bean>
+
+
+    <!--2.配置缓存处理器EhCacheManager 加入Ehcache的jar包及配置文件, 可不配置-->
+    <bean id="shiroEhcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:ehcache-shiro.xml" />
+    </bean>
+
+    <!-- 3.创建自定义realm -->
+    <bean id="userRealm" class="cn.fcars.infomgr.realm.UserRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <!-- 设置加密方式-->
+                <property name="hashAlgorithmName" value="MD5"></property>
+                <!-- 设置散列次数-->
+                <property name="hashIterations" value="1"></property>
+            </bean>
+        </property>
+    </bean>
+    <!-- 多realm需要认证器-->
+    <bean id="authenticator" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+        <property name="authenticationStrategy">
+            <!--配置多realm的认证策略，都成功认证还是，成功一个认证，还是只要成功一个认证-->
+            <bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+        </property>
+    </bean>
+
+    <!-- 4.配置Shiro生命周期处理器，自动来调用配置在spring IOC容器中Shiro bean的生命周期方法 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+    <!-- 5.启用IOC容器中，使用shiro的注解，但必须配置lifecycleBeanPostProcessor才可以使用-->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+        <!--<property name="proxyTargetClass" value="true" />-->
+    </bean>
+    <!--shiro注解起作用-->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+    <!-- 6.配置shiroFilter，id必须与web.xml中一致 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager" />
+        <property name="loginUrl" value="/login.jsp" />
+        <property name="filterChainDefinitionMap" ref="filterChainDefinitionMap"></property>
+        <!--<property name="filterChainDefinitions">-->
+        <!--<value>-->
+        <!--/logout = logout-->
+        <!--&lt;!&ndash; 登录页允许访问 &ndash;&gt;-->
+        <!--/login = anon-->
+        <!--/generate = anon-->
+        <!--&lt;!&ndash; 静态资源允许访问 &ndash;&gt;-->
+        <!--/static/** = anon-->
+        <!--/main = user-->
+        <!--/** = authc,perms-->
+        <!--</value>-->
+        <!--</property>-->
+    </bean>
+
+    <!--通过实例工厂创建实例对象-->
+    <bean id="filterChainDefinitionMap" factory-bean="FilterChainDefinitionMapBuilder" factory-method="builder"></bean>
+    <bean id="FilterChainDefinitionMapBuilder" class="cn.fcars.infomgr.common.FilterChainDefinitionMapBuilder"></bean>
+
+    <!--异常处理，多种方式-->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.apache.shiro.authz.UnauthorizedException">redirect:/nopermission.jsp</prop>
+            </props>
+        </property>
+    </bean>
+</beans>

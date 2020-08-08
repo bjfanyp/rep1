@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.autofinance.OrderOperateMapper">
+    <resultMap id="orderOperateMap" type="cn.fcars.infomgr.entity.autofinance.OrderOperate" >
+        <id property="id" column="id"/>
+        <result property="orderZt" column="order_zt"/>
+        <result property="collect" column="collect"/>
+        <result property="loan" column="loan"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="order" resultMap="orderMap"></association>
+    </resultMap>
+    <resultMap id="orderMap" type="cn.fcars.infomgr.entity.autofinance.Order" >
+        <id property="orderID" column="order_id"/>
+        <result property="rbID" column="rb_id"/>
+        <result property="orderCustom" column="order_custom"/>
+        <result property="orderCustomID" column="order_customid"/>
+        <result property="orderPrepay" column="order_prepay"/>
+        <result property="orderLoanvalue" column="order_loanvalue"/>
+        <result property="orderPins" column="order_pins"/>
+        <result property="orderYwins" column="order_ywins"/>
+        <result property="orderSerpay" column="order_serpay"/>
+        <result property="orderRisk" column="order_risk"/>
+        <result property="orderConsloan" column="order_consloan"/>
+        <result property="orderSfdk" column="order_sfdk"/>
+        <result property="orderFktotal" column="order_fktotal"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <select id="findByID" resultMap="orderOperateMap">
+        select t.id,t.order_id,t.order_zt,t.collect,t.loan,t.create_time,t.update_time ,
+        j.order_id as orderid ,j.rb_id,j.order_custom,j.order_customid,j.order_prepay,j.order_loanvalue,j.order_pins,j.order_ywins,j.order_serpay,j.order_risk,j.order_consloan,j.order_sfdk,j.order_fktotal,j.is_delete
+        from f_order_operate t inner join f_order j on t.order_id=j.order_id
+        <where>
+            <if test="id!=null and id!=''"> and t.id=#{id}</if>
+            and j.is_delete='0'
+        </where>
+    </select>
+
+
+    <select id="findByQuery" resultMap="orderOperateMap">
+        select t.id,t.order_id,t.order_zt,t.collect,t.loan,t.create_time,t.update_time ,
+        j.order_id as orderid ,j.rb_id,j.order_custom,j.order_customid,j.order_prepay,j.order_loanvalue,j.order_pins,j.order_ywins,j.order_serpay,j.order_risk,j.order_consloan,j.order_sfdk,j.order_fktotal,j.is_delete
+        from f_order_operate t inner join f_order j on t.order_id=j.order_id
+        <where>
+            <if test="orderID!=null and orderID!=''">and t.order_id = #{orderID}</if>
+            <if test="orderZt!=null and orderZt!=''">and t.order_zt=#{orderZt}</if>
+            and j.is_delete='0'
+        </where>
+        order by t.id
+    </select>
+
+    <select id="findByPara" resultMap="orderOperateMap">
+        select t.id,t.order_id,t.order_zt,t.collect,t.loan,t.create_time,t.update_time ,
+        j.order_id as orderid ,j.rb_id,j.order_custom,j.order_customid,j.order_prepay,j.order_loanvalue,j.order_pins,j.order_ywins,j.order_serpay,j.order_risk,j.order_consloan,j.order_sfdk,j.order_fktotal,j.is_delete
+        from f_order_operate t inner join f_order j on t.order_id=j.order_id
+        <where>
+            <if test="orderID!=null and orderID!=''">and t.order_id = #{orderID}</if>
+            <if test="orderZt!=null and orderZt!=''">and t.order_zt in (#{orderZt})</if>
+            and j.is_delete='0'
+        </where>
+        order by t.id
+    </select>
+
+
+    <insert id="add" parameterType="cn.fcars.infomgr.entity.autofinance.OrderOperate" useGeneratedKeys="true">
+        <selectKey keyProperty="id" order="BEFORE" resultType="integer">
+            select seqorderoperateid.nextval from dual
+        </selectKey>
+        insert into f_order_operate(id,order_id,order_zt,collect,loan,create_time,update_time)
+        values(#{id},#{order.orderID},#{orderZt},#{collect,jdbcType=DOUBLE},#{loan,jdbcType=DOUBLE},#{createTime},#{updateTime})
+    </insert>
+    <update id="update" parameterType="cn.fcars.infomgr.entity.autofinance.OrderOperate">
+        UPDATE f_order_operate t set t.order_id=#{order.orderID},t.order_zt=#{orderZt},t.collect=#{collect,jdbcType=DOUBLE},t.loan=#{loan,jdbcType=DOUBLE},t.update_time=#{updateTime} where t.id=#{id}
+    </update>
+    <delete id="delete">
+        delete from f_order_operate where id=#{id}
+    </delete>
+    <delete id="deleteByOrderID">
+        delete from f_order_operate where order_id=#{orderID}
+    </delete>
+
+
+
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+       <context:property-placeholder location="classpath:jdbc.properties"/>
+       <!--建立数据源-->
+        <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+            <property name="driverClassName" value="${jdbc.driverClassName}"/>
+            <property name="url" value="${jdbc.url}"/>
+            <property name="username" value="${jdbc.username}"/>
+            <property name="password" value="${jdbc.password}"/>
+            <property name="validationQuery" value="${druid.validationQuery}"/>
+            <!-- 连接池的最大数据库连接数 -->
+            <property name="maxActive" value="${druid.maxActive}"/>
+        </bean>
+
+       <!--建立会话工厂-->
+       <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+              <property name="dataSource" ref="dataSource"/>
+              <property name="mapperLocations" value="classpath:cn/fcars/infomgr/mapper/**/*.xml"/><!--cn/fcars/infomgr/mapper/下的任意路径下的xml文件-->
+               <!--<property name="configuration">-->
+                   <!--<bean class="org.apache.ibatis.session.Configuration">-->
+                       <!--<property name="mapUnderscoreToCamelCase" value="true"/>-->
+                   <!--</bean>-->
+               <!--</property>-->
+               <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+              <property name="plugins">
+                  <array>
+                      <bean class="com.github.pagehelper.PageHelper">
+                          <property name="properties">
+                              <value>
+                                  dialect=oracle
+                                  offsetAsPageNum=true
+                                  rowBoundsWithCount=true
+                                  pageSizeZero=true
+                                  reasonable=true
+                              </value>
+                          </property>
+                      </bean>
+                  </array>
+              </property>
+       </bean>
+      <!--扫描mapper-->
+       <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+              <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
+              <property name="basePackage" value="cn.fcars.infomgr.mapper"/>
+       </bean>
+       <!--事物处理-->
+       <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+              <property name="dataSource" ref="dataSource"/>
+       </bean>
+    <!--开启注解方式声明事务-->
+       <tx:annotation-driven transaction-manager="transactionManager" />
+       <!-- 拦截器方式配置事物 -->
+       <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+              <tx:attributes>
+                     <tx:method name="add*" propagation="REQUIRED" />
+                     <tx:method name="append*" propagation="REQUIRED" />
+                     <tx:method name="insert*" propagation="REQUIRED" />
+                     <tx:method name="save*" propagation="REQUIRED" />
+                     <tx:method name="update*" propagation="REQUIRED" />
+                     <tx:method name="modify*" propagation="REQUIRED" />
+                     <tx:method name="edit*" propagation="REQUIRED" />
+                     <tx:method name="delete*" propagation="REQUIRED" />
+                     <tx:method name="remove*" propagation="REQUIRED" />
+                     <tx:method name="repair" propagation="REQUIRED" />
+                     <tx:method name="delAndRepair" propagation="REQUIRED" />
+                     <tx:method name="get*" propagation="SUPPORTS" />
+                     <tx:method name="find*" propagation="SUPPORTS" />
+                     <tx:method name="select*" propagation="SUPPORTS" />
+                     <tx:method name="search*" propagation="SUPPORTS" />
+                     <tx:method name="datagrid*" propagation="SUPPORTS" />
+                     <tx:method name="*" propagation="SUPPORTS" />
+              </tx:attributes>
+       </tx:advice>
+       <aop:config>
+              <aop:pointcut id="transactionPointcut" expression="execution(* cn.fcars.infomgr.service..*.*(..))"/>
+              <aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice" />
+       </aop:config>
+
+</beans>

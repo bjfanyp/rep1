@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.fcars.infomgr.mapper.basic.AppVersionMapper" >
+  <resultMap id="BaseResultMap" type="cn.fcars.infomgr.entity.basic.AppVersion" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="app_id" property="appId" jdbcType="CHAR" />
+    <result column="app_version" property="appVersion" jdbcType="VARCHAR" />
+    <result column="app_name" property="appName" jdbcType="VARCHAR" />
+    <result column="app_download_url" property="appDownloadUrl" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="is_delete" property="isDelete" jdbcType="CHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="app_version_image" property="appVersionImage" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, app_id, app_version, app_name, app_download_url, create_time, update_time,
+    is_delete, remark, app_version_image
+  </sql>
+
+  <select id="findByQuery" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from b_appversion
+		<where>
+          <if test="appID!=null and  appID!=''">
+            and app_id=#{appID}
+          </if>
+        </where>
+	</select>
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.vehicle.VehicleMgrMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        <id property="vehicleID" column="V_ID"/>
+        <result property="pinPaiID" column="V_PINPAIID"/>
+        <result property="pinPai" column="V_PINPAI"/>
+        <result property="cheXingID" column="V_CheXingID"/>
+        <result property="cheXing" column="V_CHEXING"/>
+        <result property="cheKuanID" column="V_CheKuanID"/>
+        <result property="cheKuan" column="V_CHEKUAN"/>
+        <result property="color" column="V_COLOR"/>
+        <result property="colorCode" column="V_COLORCODE"/>
+        <result property="zhidaojia" column="V_ZDJ"/>
+        <result property="zt" column="V_ZT"/>
+        <result property="photoUrl" column="V_PHOTOURL"/>
+        <result property="thumbUrl" column="V_THUMBURL"/>
+    </resultMap>
+
+
+    <select id="findByStringID"  resultMap="map">
+        select v_id,v_pinpaiid,v_pinpai,v_chexingid,v_chexing,v_chekuanid,v_chekuan,v_colorcode,v_color,v_zdj,V_PHOTOURL,V_THUMBURL from v_vehiclemgr
+        <where>
+            <if test="id!=null and id!=''"> and v_id=#{id}</if>
+            and v_zt='1'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="map">
+        select v_id,v_pinpaiid,v_pinpai,v_chexingid,v_chexing,v_chekuanid,v_chekuan,v_colorcode,v_color,v_zdj,V_PHOTOURL,V_THUMBURL from v_vehiclemgr where v_zt='1'
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select v_id,v_pinpaiid,v_pinpai,v_chexingid,v_chexing,v_chekuanid,v_chekuan,v_colorcode,v_color,v_zdj,V_PHOTOURL,V_THUMBURL from v_vehiclemgr
+        <where>
+            <if test="pinPaiID!=null and pinPaiID!=''">   and v_pinpaiid=#{pinPaiID}  </if>
+            <if test="cheXingID!=null and cheXingID!=''"> and v_chexingid=#{cheXingID}  </if>
+            <if test="cheKuanID!=null and cheKuanID!=''"> and v_chekuanid=#{cheKuanID}  </if>
+            and v_zt='1'
+        </where>
+    </select>
+
+
+    <select id="checkExist" resultType="integer">
+        select count(1) from v_vehiclemgr
+        <where>
+            <if test="id!=null and id!=''"> and v_pinpaiid=#{pinPaiID} and v_chexingid=#{cheXingID} and v_chekuanid=#{cheKuanID} and  v_colorcode=#{colorCode} and V_ID!=#{id}</if>
+            <if test="id==null || id==''">  and v_pinpaiid=#{pinPaiID} and v_chexingid=#{cheXingID} and v_chekuanid=#{cheKuanID} and  v_colorcode=#{colorCode}  </if>
+            and v_zt='1'
+        </where>
+    </select>
+
+    <select id="getPinPai" resultMap="map">
+        select t.v_pinpaiid,t.v_pinpai  from v_vehiclemgr t where t.v_zt='1' group by t.v_pinpaiid,t.v_pinpai
+    </select>
+
+    <select id="getCheXing" resultMap="map">
+        select t.v_chexingid,t.v_chexing  from v_vehiclemgr t
+         <where>
+             and v_pinpaiid=#{pinPaiID}
+         </where>
+         and t.v_zt='1' group by t.v_chexingid,t.v_chexing
+    </select>
+
+    <select id="getCheKuan" resultMap="map">
+        select t.v_chekuanid,t.v_chekuan  from v_vehiclemgr t
+        <where>
+            and v_pinpaiid=#{pinPaiID}  and v_chexingid=#{cheXingID}
+        </where>
+        and t.v_zt='1' group by t.v_chekuanid,t.v_chekuan
+    </select>
+
+    <select id="getVehicleInfo" resultMap="map">
+        select *  from v_vehiclemgr t
+        <where>
+            <if test="pinPaiID!=null and pinPaiID!=''">   and v_pinpaiid=#{pinPaiID}  </if>
+            <if test="cheXingID!=null and cheXingID!=''"> and v_chexingid=#{cheXingID}  </if>
+            <if test="cheKuanID!=null and cheKuanID!=''"> and v_chekuanid=#{cheKuanID}  </if>
+            and v_zt='1'
+        </where>
+    </select>
+
+    <select id="getRealVehicleInfo" resultMap="map">
+        select *  from v_vehiclemgr t
+        <where>
+            <if test="pinPaiID!=null and pinPaiID!=''">   and v_pinpaiid=#{pinPaiID}  </if>
+            <if test="cheXingID!=null and cheXingID!=''"> and v_chexingid=#{cheXingID}  </if>
+            <if test="cheKuanID!=null and cheKuanID!=''"> and v_chekuanid=#{cheKuanID}  </if>
+            <if test="colorCode!=null and colorCode!=''"> and v_colorCode=#{colorCode}  </if>
+            and v_zt='1'
+        </where>
+    </select>
+
+    <insert id="add"  parameterType="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        insert into v_vehiclemgr(V_ID,V_PINPAIID,V_PINPAI,V_CHEXINGID,V_CHEXING,V_CHEKUANID,V_CHEKUAN,V_COLOR,V_COLORCODE,V_ZDJ,V_ZT,V_PHOTOURL,V_THUMBURL)
+        values(#{vehicleID,jdbcType=VARCHAR},#{pinPaiID,jdbcType=VARCHAR},#{pinPai,jdbcType=VARCHAR},#{cheXingID,jdbcType=VARCHAR},#{cheXing,jdbcType=VARCHAR},#{cheKuanID,jdbcType=VARCHAR},#{cheKuan,jdbcType=VARCHAR},#{color,jdbcType=VARCHAR},#{colorCode,jdbcType=VARCHAR},#{zhidaojia,jdbcType=INTEGER},#{zt,jdbcType=VARCHAR},#{photoUrl,jdbcType=VARCHAR},#{thumbUrl,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        update v_vehiclemgr set v_color=#{color} ,v_colorcode=#{colorCode},v_zdj=#{zhidaojia} ,V_PHOTOURL=#{photoUrl,jdbcType=VARCHAR},V_THUMBURL=#{thumbUrl,jdbcType=VARCHAR} where v_id=#{vehicleID}
+    </update>
+
+    <update id="deleteByStringID" parameterType="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        UPDATE v_vehiclemgr t set t.v_zt='0' where t.v_id=#{id}
+    </update>
+
+
+</mapper>

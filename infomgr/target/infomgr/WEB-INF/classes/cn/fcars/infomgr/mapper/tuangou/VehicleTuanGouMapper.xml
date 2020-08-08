@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.tuangou.VehicleTuanGouMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.tuangou.VehicleTuanGou">
+        <id property="tgID" column="TG_ID"/>
+        <result property="tgCount" column="tg_count"/>
+        <result property="tgYtCount" column="tg_ytcount"/>
+        <result property="tgFbDate" column="tg_fbdate"/>
+        <result property="tgJZDate" column="tg_jzdate"/>
+        <result property="tgZt" column="tg_zt"/>
+        <result property="isDelete" column="IS_DELETE"/>
+        <association property="city" resultMap="cityInfo"></association>
+        <association property="user" resultMap="userInfo"></association>
+        <association property="product" resultMap="productInfo"></association>
+    </resultMap>
+    <resultMap id="cityInfo" type="cn.fcars.infomgr.entity.basic.District">
+        <id property="districtCode" column="district_code"/>
+        <result property="districtName" column="district_name"/>
+        <result property="parentCode" column="parent_code"/>
+    </resultMap>
+    <resultMap id="userInfo" type="cn.fcars.infomgr.entity.basic.User">
+        <id property="userID" column="user_ID"/>
+        <result property="userName" column="user_Name"/>
+        <result property="userPassword" column="user_Password"/>
+        <result property="userTrueName" column="user_Truename"/>
+        <result property="userTel" column="user_Tel"/>
+        <result property="userErrorCount" column="user_Errorcount"/>
+        <result property="userStatus" column="user_Status"/>
+        <result property="userEffective" column="user_Effective"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <result property="isDelete" column="is_Delete"/>
+    </resultMap>
+    <resultMap id="productInfo" type="cn.fcars.infomgr.entity.vehicle.VehicleProduct">
+        <id property="PID" column="P_ID"/>
+        <result property="pCount" column="P_COUNT"/>
+        <result property="pKTCount" column="P_KTCOUNT"/>
+        <result property="sellPrice" column="P_SELL_PRICE"/>
+        <result property="advancePrice" column="P_ADVANCE_PRICE"/>
+        <result property="allowArea" column="P_ALLOW_AREA"/>
+        <result property="zt" column="P_ZT"/>
+        <result property="fbDate" column="P_FBDATE"/>
+        <result property="yxq" column="P_YXQ"/>
+        <association property="info" resultMap="VehicleInfo"></association>
+    </resultMap>
+    <resultMap id="VehicleInfo" type="cn.fcars.infomgr.entity.vehicle.VehicleInfo">
+        <id property="vehicleID" column="V_ID"/>
+        <result property="pinPaiID" column="V_PINPAIID"/>
+        <result property="pinPai" column="V_PINPAI"/>
+        <result property="cheXingID" column="V_CheXingID"/>
+        <result property="cheXing" column="V_CHEXING"/>
+        <result property="cheKuanID" column="V_CheKuanID"/>
+        <result property="cheKuan" column="V_CHEKUAN"/>
+        <result property="color" column="V_COLOR"/>
+        <result property="colorCode" column="V_COLORCODE"/>
+        <result property="zhidaojia" column="V_ZDJ"/>
+        <result property="zt" column="V_ZT"/>
+        <result property="photoUrl" column="V_PHOTOURL"/>
+        <result property="thumbUrl" column="V_THUMBURL"/>
+    </resultMap>
+
+    <select id="findByStringID" resultMap="map">
+        select * from  v_tuangou t inner join v_product j on t.p_id = j.p_id inner join b_user m on t.user_id=m.user_id inner join v_vehiclemgr n on j.v_id=n.v_id inner join B_DISTRICT k on  t.tg_city=k.DISTRICT_CODE
+        <where>
+        <if test="id!=null and id!=''">t.tg_id=#{id}</if>
+          and  t.IS_DELETE='0' and j.P_ZT='1' and m.IS_DELETE='0' and n.V_ZT='1'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="map">
+        select * from  v_tuangou t inner join v_product j on t.p_id = j.p_id inner join b_user m on t.user_id=m.user_id inner join v_vehiclemgr n on j.v_id=n.v_id  inner join B_DISTRICT k on  t.tg_city=k.DISTRICT_CODE
+        <where>
+            and  t.IS_DELETE='0' and j.P_ZT='1' and m.IS_DELETE='0' and n.V_ZT='1'
+        </where>
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select * from  v_tuangou t inner join v_product j on t.p_id = j.p_id inner join b_user m on t.user_id=m.user_id inner join v_vehiclemgr n on j.v_id=n.v_id  inner join B_DISTRICT k on  t.tg_city=k.DISTRICT_CODE
+        <where>
+            <if test="pinPaiID!=null  and pinPaiID!=''"> and n.v_pinpaiid=#{pinPaiID}</if>
+            <if test="cheXingID!=null and cheXingID!=''">and n.v_chexingid=#{cheXingID}</if>
+            <if test="cheKuanID!=null and cheKuanID!=''">and n.v_chekuanid=#{cheKuanID}</if>
+            and  t.IS_DELETE='0' and j.P_ZT='1' and m.IS_DELETE='0' and n.V_ZT='1'
+        </where>
+    </select>
+
+    <select id="findByProductID" resultMap="map">
+        select * from v_tuangou
+        <where>
+            <if test="id!=null and id!=''"> and p_id = #{id}</if>
+            and  IS_DELETE='0'
+        </where>
+    </select>
+
+
+    <select id="checkUserIDExist" resultType="integer">
+        select count(1) from v_tuangou
+        <where>
+            <if test="id!=null and id!=''"> and p_id=#{id}</if>
+            and user_id=#{userID}
+            and  IS_DELETE='0'
+        </where>
+    </select>
+
+    <select id="deleteByStringID" resultMap="map">
+        update v_tuangou set  IS_DELETE='1'
+        <where>
+            and tg_id=#{id}
+        </where>
+    </select>
+
+    <select id="gqByStringID" resultMap="map">
+        update v_tuangou set IS_DELETE='2'
+        <where>
+            and tg_id=#{id}
+        </where>
+    </select>
+
+    <insert id="add"  parameterType="cn.fcars.infomgr.entity.tuangou.VehicleTuanGou">
+        insert into v_tuangou(tg_id,p_id,tg_count,tg_ytcount,tg_city,tg_fbdate, tg_jzdate,tg_zt,user_id,is_delete)
+        values(#{tgID},#{product.PID},#{tgCount},#{tgYtCount},#{city.districtCode},#{tgFbDate,jdbcType=DATE}, #{tgJZDate,jdbcType=DATE},#{tgZt},#{user.userID,jdbcType=INTEGER},#{isDelete})
+    </insert>
+
+    <update id="update"  parameterType="cn.fcars.infomgr.entity.tuangou.VehicleTuanGou">
+        update v_tuangou set tg_city=#{city.districtCode},tg_count=#{tgCount},tg_ytcount=#{tgYtCount},tg_jzdate=#{tgJZDate} where tg_id=#{tgID} and IS_DELETE=#{isDelete}
+    </update>
+
+</mapper>

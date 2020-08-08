@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.UserMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.basic.User">
+        <id property="userID" column="user_ID"/>
+        <result property="userName" column="user_Name"/>
+        <result property="userPassword" column="user_Password"/>
+        <result property="userTrueName" column="user_Truename"/>
+        <result property="userTel" column="user_Tel"/>
+        <result property="userErrorCount" column="user_Errorcount"/>
+        <result property="userStatus" column="user_Status"/>
+        <result property="userEffective" column="user_Effective"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <result property="isDelete" column="is_Delete"/>
+        <association property="dep" resultMap="depmp"></association>
+    </resultMap>
+
+    <resultMap id="depmp" type="cn.fcars.infomgr.entity.basic.Dep">
+        <id property="depID" column="depid"/>
+        <result property="depName" column="dep_Name"/>
+        <result property="depType" column="dep_Type"/>
+        <result property="isDelete" column="is_Delete"/>
+        <result property="depQdfwf" column="dep_Qdfwf"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <association property="account" javaType="cn.fcars.infomgr.entity.basic.Account">
+            <id property="accountID" column="account_ID"/>
+            <result property="accountName" column="account_Name"/>
+            <result property="accountType" column="account_Type"/>
+            <result property="accountBank" column="account_Bank"/>
+            <result property="accountNumber" column="account_Number"/>
+        </association>
+    </resultMap>
+
+    <select id="findByID" resultMap="map">
+        select m.user_id,m.dep_id as depid,m.user_name,m.user_password,m.user_truename,m.user_tel,
+        m.user_errorcount,m.user_status,m.user_effective,m.create_time ,m.update_time,m.is_delete ,
+        n.dep_id as depsid ,n.dep_name,n.dep_type,n.is_delete as depdelete ,n.create_time as depctime,n.update_time as deputime,n.account_id,n.dep_qdfwf,
+        j.account_id as accondid,j.account_name,j.account_type,j.account_bank,j.account_number
+        from b_user m inner join b_dep n on m.dep_id=n.dep_id  left join b_account j on n.account_id=j.account_id
+        <where>
+            and m.IS_DELETE='0'
+            and m.USER_ID=#{id}
+        </where>
+    </select>
+
+    <select id="findByName" resultMap="map">
+        select m.user_id,m.dep_id as depid,m.user_name,m.user_password,m.user_truename,m.user_tel,
+        m.user_errorcount,m.user_status,m.user_effective,m.create_time ,m.update_time,m.is_delete ,
+        n.dep_id as depsid ,n.dep_name,n.dep_type,n.is_delete as depdelete ,n.create_time as depctime,n.update_time as deputime,n.account_id,n.dep_qdfwf,
+        j.account_id as accondid,j.account_name,j.account_type,j.account_bank,j.account_number
+        from b_user m inner join b_dep n on m.dep_id=n.dep_id  left join b_account j on n.account_id=j.account_id
+        <where>
+            <if test="username!=null and username!=''"> and m.USER_NAME=#{username}</if>
+            and m.IS_DELETE='0'
+        </where>
+    </select>
+
+    <select id="findByQuery" resultMap="map">
+        select m.user_id,m.dep_id as depid,m.user_name,m.user_password,m.user_truename,m.user_tel,
+        m.user_errorcount,m.user_status,m.user_effective,m.create_time ,m.update_time,m.is_delete ,
+        n.dep_id as depsid ,n.dep_name,n.dep_type,n.is_delete as depdelete ,n.create_time as depctime,n.update_time as deputime,n.account_id,n.dep_qdfwf,
+        j.account_id as accondid,j.account_name,j.account_type,j.account_bank,j.account_number
+        from b_user m inner join b_dep n on m.dep_id=n.dep_id  left join b_account j on n.account_id=j.account_id
+        <where>
+            <if test="userName!=null and userName!=''"> and m.USER_NAME like concat(concat('%',#{userName}),'%')</if>
+            <if test="depID!=null and depID!=0"> and  n.DEP_ID=#{depID}</if>
+            and m.IS_DELETE='0'
+            and m.USER_ID!=1000
+        </where>
+        order by m.user_id
+    </select>
+
+    <select id="findByAttr" resultMap="map">
+        select * from b_user where IS_DELETE='0' and USER_ID!=1000 and user_name='111'
+        <!--<if test="strWhere!=null">and #{strWhere}</if>-->
+        <!--<if test="strOrder!=null">order by ${strOrder}</if>-->
+    </select>
+
+    <select id="findByPage" resultMap="map">
+        select m.user_id,m.dep_id as depid,m.user_name,m.user_password,m.user_truename,m.user_tel,
+        m.user_errorcount,m.user_status,m.user_effective,m.create_time ,m.update_time,m.is_delete ,
+        n.dep_id as depsid ,n.dep_name,n.dep_type,n.is_delete as depdelete ,n.create_time as depctime,n.update_time as deputime,n.account_id,n.dep_qdfwf,
+        j.account_id as accondid,j.account_name,j.account_type,j.account_bank,j.account_number
+        from b_user m inner join b_dep n on m.dep_id=n.dep_id  left join b_account j on n.account_id=j.account_id
+        <where>
+            <if test="userName!=null and userName!=''"> and m.USER_NAME like concat(concat('%',#{userName}),'%')</if>
+            <if test="depID!=null and depID!=0"> and  n.DEP_ID=#{depID}</if>
+            and m.IS_DELETE='0'
+            and m.USER_ID!=1000
+        </where>
+        order by m.user_id
+    </select>
+
+
+
+    <select id="check" resultType="integer">
+        select count(1) from b_user
+        <where>
+            <if test="username!=null and username!=''"> and USER_NAME=#{username}</if>
+             and IS_DELETE='0'
+        </where>
+    </select>
+
+
+    <select id="findAll" resultMap="map">
+        select m.user_id,m.dep_id as depid,m.user_name,m.user_password,m.user_truename,m.user_tel,
+        m.user_errorcount,m.user_status,m.user_effective,m.create_time ,m.update_time,m.is_delete ,
+        n.dep_id as depsid ,n.dep_name,n.dep_type,n.is_delete as depdelete ,n.create_time as depctime,n.update_time as deputime,n.account_id,n.dep_qdfwf,
+        j.account_id as accondid,j.account_name,j.account_type,j.account_bank,j.account_number
+        from b_user m inner join b_dep n on m.dep_id=n.dep_id  left join b_account j on n.account_id=j.account_id
+        <where>
+            and m.IS_DELETE='0'
+            and m.USER_ID!=1000
+        </where>
+        order by m.user_id
+    </select>
+
+
+    <update id="update">
+        UPDATE b_user
+          <set>
+              user_name=#{userName},
+              dep_id=#{dep.depID,jdbcType=INTEGER},
+              user_password=#{userPassword},
+              user_truename=#{userTrueName},
+              user_tel=#{userTel,jdbcType=VARCHAR},
+              is_delete=#{isDelete},
+              user_errorcount=#{userErrorCount},
+              user_status=#{userStatus},
+              user_effective=#{userEffective},
+              update_time=#{updateTime}
+          </set>
+        where user_id=#{userID}
+    </update>
+
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="userID" order="BEFORE" resultType="java.lang.Integer">
+            select sequserid.NEXTVAL as userID from DUAL
+        </selectKey>
+        insert into b_user (user_id,dep_id,user_name,user_password,user_truename,user_tel,is_delete,user_errorcount,user_status,user_effective,create_time,update_time)
+        VALUES (#{userID},#{dep.depID,jdbcType=INTEGER},#{userName},#{userPassword},#{userTrueName,jdbcType=VARCHAR},#{userTel,jdbcType=VARCHAR},#{isDelete},#{userErrorCount},#{userStatus},#{userEffective},#{createTime},#{updateTime})
+    </insert>
+    <delete id="delete">
+        delete from b_user where user_id=#{user.userID}
+    </delete>
+</mapper>

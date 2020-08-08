@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.fcars.infomgr.mapper.basic.FeedbackMapper" >
+  <resultMap id="BaseResultMap" type="cn.fcars.infomgr.entity.basic.FeedBack" >
+    <id column="feedback_id" property="id" jdbcType="VARCHAR" />
+    <result column="feedback_name" property="feedbackName" jdbcType="VARCHAR" />
+    <result column="feedback_phone" property="feedbackPhone" jdbcType="VARCHAR" />
+    <result column="feedback_content" property="feedbackContent" jdbcType="VARCHAR" />
+    <result column="created_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="feedback_state" property="feedbackState" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, feedback_name, feedback_phone, feedback_content,
+    create_time, feedback_state
+  </sql>
+
+  <insert id="add" parameterType="cn.fcars.infomgr.entity.basic.FeedBack" >
+    insert into B_FEEDBACK (id, feedback_name,
+      feedback_phone, feedback_content, create_time, feedback_state)
+    values (#{id,jdbcType=VARCHAR}, #{feedbackName,jdbcType=VARCHAR}, #{feedbackPhone,jdbcType=VARCHAR}, #{feedbackContent,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{feedbackState,jdbcType=VARCHAR})
+  </insert>
+
+</mapper>

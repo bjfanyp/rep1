@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.PermMapper">
+
+    <resultMap id="permMap" type="cn.fcars.infomgr.entity.basic.Perm">
+        <id property="permID" column="perm_id"/>
+        <result property="permName" column="perm_name"/>
+        <result property="permToken" column="perm_token"/>
+        <result property="permSxh" column="perm_sxh"/>
+        <association property="menu" resultMap="menuMap"></association>
+    </resultMap>
+    <resultMap id="menuMap" type="cn.fcars.infomgr.entity.basic.Menu">
+        <id property="menuID" column="menu_id"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <select id="findByName" resultMap="permMap">
+        select t.perm_id,t.perm_name,t.perm_token,t.perm_sxh,t.menu_id ,j.menu_id as menuID,j.menu_name,j.is_delete from b_perm t inner join b_menu j on t.menu_id=j.menu_id
+        <where>
+            <if test="name!=null and name!=''"> and t.perm_name=#{name}</if>
+            and j.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByQuery" resultMap="permMap">
+        select t.perm_id,t.perm_name,t.perm_token,t.perm_sxh,t.menu_id ,j.menu_id as menuID,j.menu_name,j.is_delete from b_perm t inner join b_menu j on t.menu_id=j.menu_id
+        <where>
+            <if test="permName!=null and permName!=''"> and t.perm_name like concat(concat('%',#{permName}),'%')</if>
+            <if test="menuID!=null and menuID!=''"> and t.menu_id=#{menuID}</if>
+            and j.is_delete='0'
+        </where>
+        order by t.perm_sxh
+    </select>
+
+
+    <select id="findByID" resultMap="permMap">
+        select t.perm_id,t.perm_name,t.perm_token,t.perm_sxh,t.menu_id ,j.menu_id as menuID,j.menu_name,j.is_delete from b_perm t inner join b_menu j on t.menu_id=j.menu_id
+        <where>
+            <if test="id!=null and id!=''"> and t.perm_id=#{id}</if>
+            and j.is_delete='0'
+        </where>
+    </select>
+    <select id="findAll" resultMap="permMap">
+      select t.perm_id,t.perm_name,t.perm_token,t.perm_sxh,t.menu_id ,j.menu_id as menuID,j.menu_name,j.is_delete from b_perm t inner join b_menu j on t.menu_id=j.menu_id
+       and j.is_delete='0'  order by t.perm_sxh
+     </select>
+
+    <update id="update">
+        update b_perm set perm_name=#{permName},perm_token=#{permToken},menu_id=#{menu.menuID},perm_sxh=#{permSxh,jdbcType=INTEGER} where perm_id=#{permID}
+    </update>
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="permID" order="BEFORE" resultType="integer">
+            select seqpermid.nextval as permID from dual
+        </selectKey>
+        insert  into b_perm(perm_id,perm_name,perm_token,perm_sxh,menu_id) VALUES (#{permID},#{permName},#{permToken},#{permSxh,jdbcType=INTEGER},#{menu.menuID})
+    </insert>
+    <delete id="deleteByID">
+        delete from b_perm where perm_id=#{id}
+    </delete>
+
+</mapper>

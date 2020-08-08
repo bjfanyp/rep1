@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.autofinance.OrderMapper">
+    <resultMap id="orderMap" type="cn.fcars.infomgr.entity.autofinance.Order" >
+        <id property="orderID" column="order_id"/>
+        <result property="rbID" column="rb_id"/>
+        <result property="orderCustom" column="order_custom"/>
+        <result property="orderCustomID" column="order_customid"/>
+        <result property="orderPrepay" column="order_prepay"/>
+        <result property="orderLoanvalue" column="order_loanvalue"/>
+        <result property="orderPins" column="order_pins"/>
+        <result property="orderYwins" column="order_ywins"/>
+        <result property="orderSerpay" column="order_serpay"/>
+        <result property="orderRisk" column="order_risk"/>
+        <result property="orderConsloan" column="order_consloan"/>
+        <result property="orderSfdk" column="order_sfdk"/>
+        <result property="orderZt" column="order_zt"/>
+        <result property="orderFktotal" column="order_fktotal"/>
+        <result property="isDelete" column="is_delete"/>
+        <association property="user" resultMap="userMap"></association>
+    </resultMap>
+    <resultMap id="userMap" type="cn.fcars.infomgr.entity.basic.User">
+        <id property="userID" column="user_ID"/>
+        <result property="userName" column="user_Name"/>
+        <result property="userPassword" column="user_Password"/>
+        <result property="userTrueName" column="user_Truename"/>
+        <result property="userTel" column="user_Tel"/>
+        <result property="userErrorCount" column="user_Errorcount"/>
+        <result property="userStatus" column="user_Status"/>
+        <result property="userEffective" column="user_Effective"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <result property="isDelete" column="is_Delete"/>
+        <association property="dep" resultMap="depMap"></association>
+    </resultMap>
+    <resultMap id="depMap" type="cn.fcars.infomgr.entity.basic.Dep">
+        <id property="depID" column="depid"/>
+        <result property="depName" column="dep_Name"/>
+        <result property="depType" column="dep_Type"/>
+        <result property="isDelete" column="is_Delete"/>
+        <result property="depQdfwf" column="dep_Qdfwf"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <association property="account" javaType="cn.fcars.infomgr.entity.basic.Account">
+            <id property="accountID" column="account_ID"/>
+            <result property="accountName" column="account_Name"/>
+            <result property="accountType" column="account_Type"/>
+            <result property="accountBank" column="account_Bank"/>
+            <result property="accountNumber" column="account_Number"/>
+        </association>
+    </resultMap>
+
+    <select id="findAll" resultMap="orderMap">
+        select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete,
+        n.user_id as userid,n.dep_id,n.user_name,n.user_password,n.user_truename,n.user_tel,n.user_errorcount,n.user_status,n.user_effective,n.create_time,n.update_time,n.is_delete as userdelete,
+        p.dep_id as depid,p.dep_name,p.dep_type,p.is_delete as depdelete,p.account_id,p.dep_qdfwf,
+        r.account_id,r.account_name,r.account_type,r.account_bank,r.account_number,r.is_delete as accountisdelete
+        from f_order m inner join  b_user n  on m.user_id=n.user_id
+        inner join b_dep p on n.dep_id=p.dep_id
+        left join b_account r on  p.account_id=r.account_id
+        <where>
+            and m.is_delete='0'
+            and n.is_delete='0'
+            and p.is_delete='0'
+            and r.is_delete='0'
+        </where>
+        order by m.order_id
+    </select>
+
+
+
+    <!--<select id="findByCheck" resultType="cn.fcars.infomgr.entity.autofinance.Order">-->
+        <!--select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete from f_order m-->
+        <!--<where>-->
+            <!--<if test="orderID!=null and orderID!=''">and m.order_id!=#{orderID}</if>-->
+            <!--<if test="rbID!=null and rbID!=''">and m.rb_id=#{rbID}</if>-->
+            <!--and m.isdelete='0'-->
+        <!--</where>-->
+    <!--</select>-->
+
+
+    <!--<select id="findByRBID" resultType="cn.fcars.infomgr.entity.autofinance.Order">-->
+        <!--select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete from f_order m-->
+        <!--<where>-->
+            <!--<if test="rbID!=null and rbID!=''">and m.rb_id=#{rbID}</if>-->
+            <!--and m.isdelete='0'-->
+        <!--</where>-->
+    <!--</select>-->
+
+    <select id="findByStringID" resultMap="orderMap">
+        select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete,
+        n.user_id as userid,n.dep_id,n.user_name,n.user_password,n.user_truename,n.user_tel,n.user_errorcount,n.user_status,n.user_effective,n.create_time,n.update_time,n.is_delete as userdelete,
+        p.dep_id as depid,p.dep_name,p.dep_type,p.is_delete as depdelete,p.account_id,p.dep_qdfwf,
+        r.account_id as accountid,r.account_name,r.account_type,r.account_bank,r.account_number,r.is_delete as accountisdelete
+        from f_order m inner join b_user n on m.user_id=n.user_id
+        inner join b_dep p on n.dep_id=p.dep_id
+        left join b_account r on p.account_id=r.account_id
+        <where>
+            <if test="id!=null and id!=''"> and m.order_id=#{id}</if>
+            and m.is_delete='0'
+            and n.is_delete='0'
+            and p.is_delete='0'
+            and r.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByPara" resultType="cn.fcars.infomgr.entity.autofinance.Order">
+        select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete
+        from f_order m
+        <where>
+            <if test="rbID!=null and rbID!=''">and m.rb_id=#{rbID}</if>
+            and m.is_delete='0'
+        </where>
+        order by m.order_id
+    </select>
+
+    <select id="findByQuery" resultMap="orderMap">
+        select m.order_id,m.user_id,m.rb_id,m.order_custom,m.order_customid,m.order_prepay,m.order_loanvalue,m.order_pins,m.order_ywins,m.order_serpay,m.order_risk,m.order_consloan,m.order_sfdk,m.order_zt,m.order_fktotal,m.is_delete,
+        n.user_id as userid,n.dep_id,n.user_name,n.user_password,n.user_truename,n.user_tel,n.user_errorcount,n.user_status,n.user_effective,n.create_time,n.update_time,n.is_delete as userdelete,
+        p.dep_id as depid,p.dep_name,p.dep_type,p.is_delete as depdelete,p.account_id,p.dep_qdfwf,
+        r.account_id as accountid,r.account_name,r.account_type,r.account_bank,r.account_number,r.is_delete as accountisdelete
+        from f_order m inner join  b_user n  on m.user_id=n.user_id
+        inner join b_dep p on n.dep_id=p.dep_id
+        left join b_account r on  p.account_id=r.account_id
+        <where>
+            <if test="rbID!=null and rbID!=''">and m.rb_id like concat(concat('%',#{rbID}),'%')</if>
+            <if test="depID!=null and depID!=''">and p.dep_id = #{depID}</if>
+            <if test="userID!=null and userID!=''">and m.user_id=#{userID}</if>
+            <if test="orderZt!=null and orderZt!=''">and m.order_zt=#{orderZt}</if>
+            and m.is_delete='0'
+            and n.is_delete='0'
+            and p.is_delete='0'
+            and r.is_delete='0'
+        </where>
+        order by m.order_id
+    </select>
+
+
+    <insert id="add" parameterType="cn.fcars.infomgr.entity.autofinance.Order">
+        insert into f_order(order_id,user_id,rb_id,order_custom,order_customid,order_prepay,order_loanvalue,order_pins,order_ywins,order_serpay,order_risk,order_consloan,order_sfdk,order_zt,order_fktotal,is_delete)
+        values(#{orderID},#{user.userID},#{rbID},#{orderCustom},#{orderCustomID},#{orderPrepay},#{orderLoanvalue},#{orderPins},#{orderYwins},#{orderSerpay},#{orderRisk},#{orderConsloan},#{orderSfdk},#{orderZt},#{orderFktotal},#{isDelete})
+    </insert>
+    <update id="update" parameterType="cn.fcars.infomgr.entity.autofinance.Order">
+        UPDATE f_order t set t.rb_id=#{rbID},t.order_prepay=#{orderPrepay},t.order_loanvalue=#{orderLoanvalue},t.order_pins=#{orderPins},t.order_ywins=#{orderYwins},t.order_serpay=#{orderSerpay},t.order_risk=#{orderRisk},t.order_consloan=#{orderConsloan},t.order_sfdk=#{orderSfdk},t.order_zt=#{orderZt},t.order_fktotal=#{orderFktotal}, t.is_delete=#{isDelete},order_custom=#{orderCustom},order_customID=#{orderCustomID} where t.order_id=#{orderID}
+    </update>
+    <delete id="deleteByStringID">
+        delete from f_order where order_id=#{id}
+    </delete>
+</mapper>

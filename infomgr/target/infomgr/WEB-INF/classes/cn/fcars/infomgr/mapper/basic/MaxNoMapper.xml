@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.MaxNoMapper">
+
+    <resultMap id="maxNo" type="cn.fcars.infomgr.entity.basic.MaxNo">
+        <id property="id" column="id"/>
+        <result property="maxNo" column="maxno"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="dep" resultMap="temMap">
+        </association>
+    </resultMap>
+    <resultMap id="temMap" type="cn.fcars.infomgr.entity.basic.Dep">
+        <id property="depID" column="dep_id"/>
+    </resultMap>
+
+    <select id="findByDepID" resultMap="maxNo">
+        select t.id ,t.maxno,t.dep_id,t.create_time,t.update_time from b_maxno t
+        <where>
+            <if test="id!=null"> and t.dep_id=#{id}</if>
+        </where>
+    </select>
+
+   <insert id="add" parameterType="cn.fcars.infomgr.entity.basic.Dep">
+       <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+           select seqmaxnoid.NEXTVAL as id from DUAL
+       </selectKey>
+       insert into b_maxno(id,dep_id,maxno,create_time,update_time) VALUES (#{id},#{dep.depID},#{maxNo},#{createTime},#{updateTime})
+   </insert>
+
+    <update id="update" parameterType="cn.fcars.infomgr.entity.basic.Dep">
+        UPDATE b_maxno set maxno=#{maxNo},update_time=#{updateTime} where dep_id=#{dep.depID}
+    </update>
+
+</mapper>

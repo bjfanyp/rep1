@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+       <context:component-scan base-package="cn.fcars.infomgr.controller"/>
+       <mvc:annotation-driven>
+       <mvc:message-converters>
+          <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+               <property name="supportedMediaTypes">
+                    <list>
+                      <value>application/json;charset=UTF-8</value>
+                      <value>text/html;charset=UTF-8</value>
+                      <value>text/plain;charset=UTF-8</value>
+                    </list>
+              </property>
+          </bean>
+       </mvc:message-converters>
+       </mvc:annotation-driven>
+       <mvc:default-servlet-handler/>
+       <aop:config proxy-target-class="true"/>
+       <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+              <property name="defaultEncoding" value="utf-8"/>
+              <property name="maxUploadSizePerFile" value="30971520"/><!--单文件最大2MB-->
+       </bean>
+    <!--<mvc:interceptors>-->
+        <!--<mvc:interceptor>-->
+            <!--<mvc:mapping path="/**" />-->
+            <!--<bean class="cn.fcars.infomgr.custom.FileUploadInterceptor">-->
+                <!--&lt;!&ndash; 1M &ndash;&gt;-->
+                <!--<property name="maxSize" value="2097152" />-->
+            <!--</bean>-->
+        <!--</mvc:interceptor>-->
+    <!--</mvc:interceptors>-->
+       <!-- SpringMVC在超出上传文件限制时,会抛出org.springframework.web.multipart.MaxUploadSizeExceededException -->
+       <!-- 该异常是SpringMVC在检查上传的文件信息时抛出来的,而且此时还没有进入到Controller方法中 -->
+       <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+              <property name="exceptionMappings">
+                     <props>
+                            <!-- 遇到MaxUploadSizeExceededException异常时,自动跳转到/WEB-INF/jsp/error_fileupload.jsp页面 -->
+                            <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">redirect:/error_fileupload.jsp</prop>
+                     </props>
+              </property>
+       </bean>
+
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+              <property name="prefix" value="/WEB-INF/jsp/"/>
+              <property name="suffix" value=".jsp"/>
+       </bean>
+
+</beans>
+

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.UserRoleMapper">
+
+    <resultMap id="userRoleMap" type="cn.fcars.infomgr.entity.basic.UserRole">
+        <id property="id" column="id"/>
+        <association property="role" resultMap="roleMap"/>
+        <association property="user" resultMap="userMap"/>
+     </resultMap>
+    <resultMap id="roleMap" type="cn.fcars.infomgr.entity.basic.Role">
+        <id property="roleID" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="isDelete" column="rdelete"/>
+    </resultMap>
+    <resultMap id="userMap" type="cn.fcars.infomgr.entity.basic.User">
+        <id property="userID" column="user_id"/>
+        <result property="userName" column="username"/>
+        <result property="isDelete" column="urdelete"/>
+    </resultMap>
+
+    <select id="findByID" resultMap="userRoleMap">
+        select t.id,t.user_id,t.role_id,
+        i.user_id as urid,i.user_name as urname,i.is_delete as urdelete
+        ,j.role_id as rid,j.role_name as rname,i.is_delete as rdelete
+        from b_user_role t inner join b_user i on t.user_id=i.user_id
+        inner join b_role j on t.role_id=j.role_id
+        <where>
+            <if test="id!=null and id!=''">and t.id=#{id}</if>
+            and i.is_delete='0'
+            and j.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByPara" resultMap="userRoleMap">
+        select t.id,t.user_id,t.role_id,
+        i.user_id as urid,i.user_name as urname,i.is_delete as urdelete
+        ,j.role_id as rid,j.role_name as rname,i.is_delete as rdelete
+        from b_user_role t inner join b_user i on t.user_id=i.user_id
+        inner join b_role j on t.role_id=j.role_id
+        <where>
+            <if test="userID!=null and userID!=''">and t.user_id=#{userID}</if>
+            <if test="roleID!=null and roleID!=''">and t.role_id=#{roleID}</if>
+            and i.is_delete='0'
+            and j.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="userRoleMap">
+        select t.id,t.user_id,t.role_id,
+        i.user_id as urid,i.user_name as urname,i.is_delete as urdelete
+        ,j.role_id as rid,j.role_name as rname,i.is_delete as rdelete
+        from b_user_role t inner join b_user i on t.user_id=i.user_id
+        inner join b_role j on t.role_id=j.role_id
+        <where>
+            and i.is_delete='0'
+            and j.is_delete='0'
+        </where>
+    </select>
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+            select sequserroleid.NEXTVAL as id from DUAL
+        </selectKey>
+        insert  into b_user_role(id,user_id,role_id) VALUES (#{id},#{user.userID},#{role.roleID})
+    </insert>
+
+    <update id="update">
+        update b_user_role set user_id=#{user.userID},roleid=#{role.roleID} where id=#{id}
+    </update>
+
+    <delete id="deleteByUserID">
+        delete from b_user_role where user_id=#{userID}
+    </delete>
+</mapper>

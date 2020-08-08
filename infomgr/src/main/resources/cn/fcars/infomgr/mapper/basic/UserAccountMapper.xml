@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.UserAccountMapper">
+
+    <resultMap id="map" type="cn.fcars.infomgr.entity.basic.UserAccount">
+        <id property="id" column="id"/>
+        <id property="isDelete" column="IS_DELETE"/>
+        <association property="user" resultMap="userMap"></association>
+        <association property="account" resultMap="accountMap"></association>
+    </resultMap>
+    <resultMap id="userMap" type="cn.fcars.infomgr.entity.basic.User">
+        <id property="userID" column="user_ID"/>
+        <result property="userName" column="user_Name"/>
+        <result property="userPassword" column="user_Password"/>
+        <result property="userTrueName" column="user_Truename"/>
+        <result property="userTel" column="user_Tel"/>
+        <result property="userErrorCount" column="user_Errorcount"/>
+        <result property="userStatus" column="user_Status"/>
+        <result property="userEffective" column="user_Effective"/>
+        <result property="createTime" column="create_Time"/>
+        <result property="updateTime" column="update_Time"/>
+        <result property="isDelete" column="is_Delete"/>
+    </resultMap>
+    <resultMap id="accountMap" type="cn.fcars.infomgr.entity.basic.Account">
+        <id property="accountID" column="account_ID"/>
+        <result property="accountName" column="account_Name"/>
+        <result property="accountType" column="account_Type"/>
+        <result property="accountBank" column="account_Bank"/>
+        <result property="accountNumber" column="account_Number"/>
+    </resultMap>
+
+    <select id="findByStringID" resultMap="map">
+        select * from b_user_account t inner join b_user j on t.user_id=j.user_id inner join b_account m on t.account_id=m.account_id
+        <where>
+            <if test="id!=null and id!=''"> and t.id = #{id}</if>
+            and t.is_delete='0' and j.is_delete='0' and m.is_delete='0'
+        </where>
+    </select>
+
+
+    <select id="findByQuery" resultMap="map">
+        select * from b_user_account t inner join b_user j on t.user_id=j.user_id inner join b_account m on t.account_id=m.account_id
+        <where>
+            <if test="userName!=null and userName!=''"> and j.user_name = #{userName}</if>
+            and t.is_delete='0' and j.is_delete='0' and m.is_delete='0'
+        </where>
+    </select>
+
+    <select id="findAll" resultMap="map">
+       select * from b_user_account t inner join b_user j on t.user_id=j.user_id inner join b_account m on t.account_id=m.account_id where t.is_delete='0' and j.is_delete='0' and m.is_delete='0'
+        order by j.user_id
+    </select>
+
+    <insert id="add">
+        insert into b_user_account (id,user_id,account_id,is_delete)
+        VALUES (#{id},#{user.userID},#{account.accountID},#{isDelete})
+    </insert>
+
+    <update id="update">
+        UPDATE b_user_account
+          <set>
+              user_id=#{user.userID},
+              account_id=#{account.accountID},
+          </set>
+        where id=#{id}
+    </update>
+
+
+    <delete id="delete">
+        UPDATE b_user_account
+        <set>
+            user_id=#{user.userID},
+            account_id=#{account.accountID},
+            is_delete='1'
+        </set>
+        where id=#{id}
+    </delete>
+</mapper>

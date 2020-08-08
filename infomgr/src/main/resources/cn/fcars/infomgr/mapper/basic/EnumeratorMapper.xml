@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.EnumeratorMapper">
+    <select id="findByPara" resultType="cn.fcars.infomgr.entity.basic.Enumerator">
+          select * from b_enumerator
+          <where>
+              <if test="gnlb!=null and gnlb!=''"> and gnlb =#{gnlb}</if>
+              <if test="dmlb!=null and dmlb!=''"> and dmlb =#{dmlb}</if>
+               and zt='1'
+          </where>
+          order by sxh
+    </select>
+</mapper>

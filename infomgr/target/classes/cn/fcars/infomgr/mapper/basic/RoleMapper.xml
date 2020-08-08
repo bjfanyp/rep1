@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.fcars.infomgr.mapper.basic.RoleMapper">
+
+    <select id="findByName" resultType="cn.fcars.infomgr.entity.basic.Role">
+        select * from b_role
+        <where>
+            <if test="name!=null and name!=''"> and role_name=#{name}</if>
+            and is_delete='0'
+        </where>
+    </select>
+
+    <select id="check" resultType="Integer">
+        select count from b_role
+        <where>
+            <if test="id!=null and id!=''"> and role_id!=#{id}</if>
+            <if test="name!=null and name!=''"> and role_name=#{name}</if>
+            and is_delete='0'
+        </where>
+    </select>
+
+    <select id="findByID" resultType="cn.fcars.infomgr.entity.basic.Role">
+        select * from b_role
+        <where>
+            <if test="id!=null and id!=''"> and role_id=#{id}</if>
+            and is_delete='0'
+        </where>
+    </select>
+    <select id="findAll" resultType="cn.fcars.infomgr.entity.basic.Role">
+        select * from b_role  where is_delete='0' order by update_time desc
+    </select>
+
+    <select id="findByQuery" resultType="cn.fcars.infomgr.entity.basic.Role">
+        select *from b_role
+        <where>
+            <if test="roleName!=null and roleName!=''"> and role_name like concat(concat('%',#{roleName}),'%') </if>
+            and is_delete='0'
+        </where>
+        order by role_id
+    </select>
+
+    <update id="update">
+        update b_role set role_name=#{roleName},role_descript=#{roleDescript,jdbcType=VARCHAR},is_delete=#{isDelete},update_time=#{updateTime} where role_id=#{roleID}
+    </update>
+
+    <insert id="add" useGeneratedKeys="true">
+        <selectKey keyProperty="roleID" resultType="integer" order="BEFORE">
+            select seqroleid.nextval as roleID from dual
+        </selectKey>
+        insert  into b_role(role_id,role_name,role_descript,is_delete,create_time,update_time) VALUES (#{roleID},#{roleName},#{roleDescript,jdbcType=VARCHAR},#{isDelete},#{createTime},#{updateTime})
+    </insert>
+    <delete id="deleteByID" parameterType="integer">
+        delete from b_role where role_id=#{id}
+    </delete>
+</mapper>
